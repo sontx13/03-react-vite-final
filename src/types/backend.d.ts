@@ -50,6 +50,25 @@ export interface ICompany {
     updatedAt?: string;
 }
 
+export interface IExam {
+    id?: string;
+    name?: string;
+    level: number;
+    logo: string;
+    description?: string;
+    company?: {
+        id: string;
+        name: string;
+        logo?: string;
+    }
+    active: boolean;
+    createdBy?: string;
+    isDeleted?: boolean;
+    deletedAt?: boolean | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 export interface ISkill {
     id?: string;
     name?: string;

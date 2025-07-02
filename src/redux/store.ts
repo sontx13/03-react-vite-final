@@ -5,6 +5,7 @@ import {
 } from '@reduxjs/toolkit';
 import accountReducer from './slice/accountSlide';
 import companyReducer from './slice/companySlide';
+import examReducer from './slice/examSlide';
 import userReducer from './slice/userSlide';
 import jobReducer from './slice/jobSlide';
 import resumeReducer from './slice/resumeSlide';
@@ -16,6 +17,7 @@ export const store = configureStore({
   reducer: {
     account: accountReducer,
     company: companyReducer,
+    exam: examReducer,
     user: userReducer,
     job: jobReducer,
     resume: resumeReducer,

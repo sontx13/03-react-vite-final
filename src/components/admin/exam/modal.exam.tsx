@@ -1,45 +1,50 @@
 import { CheckSquareOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { FooterToolbar, ModalForm, ProCard, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
+import { FooterToolbar, ModalForm, ProCard, ProForm, ProFormDigit, ProFormSwitch, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
 import { Col, ConfigProvider, Form, Modal, Row, Upload, message, notification } from "antd";
 import 'styles/reset.scss';
 import { isMobile } from 'react-device-detect';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { useEffect, useState } from "react";
-import { callCreateCompany, callUpdateCompany, callUploadSingleFile } from "@/config/api";
-import { ICompany } from "@/types/backend";
+import { callCreateExam, callFetchCompany, callUpdateExam, callUploadSingleFile } from "@/config/api";
+import { IExam } from "@/types/backend";
 import { v4 as uuidv4 } from 'uuid';
 import enUS from 'antd/lib/locale/en_US';
+import { DebounceSelect } from "../user/debouce.select";
+import { ICompanySelect } from "../user/modal.user";
 
 interface IProps {
     openModal: boolean;
     setOpenModal: (v: boolean) => void;
-    dataInit?: ICompany | null;
+    dataInit?: IExam | null;
     setDataInit: (v: any) => void;
     reloadTable: () => void;
 }
 
-interface ICompanyForm {
+interface IExamForm {
     name: string;
-    address: string;
+    level: number;
+    active: boolean;
 }
 
-interface ICompanyLogo {
+interface IExamLogo {
     name: string;
     uid: string;
 }
 
-const ModalCompany = (props: IProps) => {
+const ModalExam = (props: IProps) => {
+    const [companies, setCompanies] = useState<ICompanySelect[]>([]);
     const { openModal, setOpenModal, reloadTable, dataInit, setDataInit } = props;
 
     //modal animation
     const [animation, setAnimation] = useState<string>('open');
 
     const [loadingUpload, setLoadingUpload] = useState<boolean>(false);
-    const [dataLogo, setDataLogo] = useState<ICompanyLogo[]>([]);
+    const [dataLogo, setDataLogo] = useState<IExamLogo[]>([]);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
+   
 
     const [value, setValue] = useState<string>("");
     const [form] = Form.useForm();
@@ -56,8 +61,24 @@ const ModalCompany = (props: IProps) => {
         }
     }, [dataInit])
 
-    const submitCompany = async (valuesForm: ICompanyForm) => {
-        const { name, address } = valuesForm;
+     // Usage of DebounceSelect
+        async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
+            const res = await callFetchCompany(`page=1&size=100&name ~ '${name}'`);
+            if (res && res.data) {
+                const list = res.data.result;
+                const temp = list.map(item => {
+                    return {
+                        label: item.name as string,
+                        value: `${item.id}@#$${item.logo}` as string
+                    }
+                })
+                return temp;
+            } else return [];
+        }
+
+    const submitExam = async (valuesForm: any) => {
+        const { name, level,active } = valuesForm;
+        const cp = valuesForm?.company?.value?.split('@#$');
 
         if (dataLogo.length === 0) {
             message.error('Vui lòng upload ảnh Logo')
@@ -65,10 +86,22 @@ const ModalCompany = (props: IProps) => {
         }
 
         if (dataInit?.id) {
+    
             //update
-            const res = await callUpdateCompany(dataInit.id, name, address, value, dataLogo[0].name);
+             const exam = {
+                name, level, 
+                logo:dataLogo[0].name,
+                description: value, 
+                company: {
+                    id: cp && cp.length > 0 ? cp[0] : "",
+                    name: valuesForm.company.label,
+                    logo: cp && cp.length > 1 ? cp[1] : ""
+                },
+                active
+            }
+            const res = await callUpdateExam(exam, dataInit.id);
             if (res.data) {
-                message.success("Cập nhật company thành công");
+                message.success("Cập nhật Exam thành công");
                 handleReset();
                 reloadTable();
             } else {
@@ -78,10 +111,24 @@ const ModalCompany = (props: IProps) => {
                 });
             }
         } else {
+             //create
+             const exam = {
+                name, 
+                level, 
+                value, 
+                logo:dataLogo[0].name,
+                description: value, 
+                company: {
+                    id: cp && cp.length > 0 ? cp[0] : "",
+                    name: valuesForm.company.label,
+                    logo: cp && cp.length > 1 ? cp[1] : ""
+                },
+                active
+            }
             //create
-            const res = await callCreateCompany(name, address, value, dataLogo[0].name);
+            const res = await callCreateExam(exam);
             if (res.data) {
-                message.success("Thêm mới company thành công");
+                message.success("Thêm mới Exam thành công");
                 handleReset();
                 reloadTable();
             } else {
@@ -155,7 +202,7 @@ const ModalCompany = (props: IProps) => {
     };
 
     const handleUploadFileLogo = async ({ file, onSuccess, onError }: any) => {
-        const res = await callUploadSingleFile(file, "company");
+        const res = await callUploadSingleFile(file, "Exam");
         if (res && res.data) {
             setDataLogo([{
                 name: res.data.fileName,
@@ -177,7 +224,7 @@ const ModalCompany = (props: IProps) => {
             {openModal &&
                 <>
                     <ModalForm
-                        title={<>{dataInit?.id ? "Cập nhật Company" : "Tạo mới Company"}</>}
+                        title={<>{dataInit?.id ? "Cập nhật bài thi" : "Tạo mới bài thi"}</>}
                         open={openModal}
                         modalProps={{
                             onCancel: () => { handleReset() },
@@ -187,13 +234,13 @@ const ModalCompany = (props: IProps) => {
                             footer: null,
                             keyboard: false,
                             maskClosable: false,
-                            className: `modal-company ${animation}`,
-                            rootClassName: `modal-company-root ${animation}`
+                            className: `modal-Exam ${animation}`,
+                            rootClassName: `modal-Exam-root ${animation}`
                         }}
                         scrollToFirstError={true}
                         preserve={false}
                         form={form}
-                        onFinish={submitCompany}
+                        onFinish={submitExam}
                         initialValues={dataInit?.id ? dataInit : {}}
                         submitter={{
                             render: (_: any, dom: any) => <FooterToolbar>{dom}</FooterToolbar>,
@@ -240,7 +287,7 @@ const ModalCompany = (props: IProps) => {
                                                             uid: uuidv4(),
                                                             name: dataInit?.logo ?? "",
                                                             status: 'done',
-                                                            url: `${import.meta.env.VITE_BACKEND_URL}/storage/company/${dataInit?.logo}`,
+                                                            url: `${import.meta.env.VITE_BACKEND_URL}/storage/Exam/${dataInit?.logo}`,
                                                         }
                                                     ] : []
                                             }
@@ -256,17 +303,53 @@ const ModalCompany = (props: IProps) => {
 
                             </Col>
 
-                            <Col span={16}>
-                                <ProFormTextArea
-                                    label="Địa chỉ"
-                                    name="address"
+                            <Col span={4}>
+                                <ProFormDigit
+                                    label="Cấp độ"
+                                    name="level"
                                     rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
-                                    placeholder="Nhập địa chỉ công ty"
+                                    placeholder="Nhập cấp độ"
+                                />
+                            </Col>
+
+                             <Col span={4}>
+                                <ProFormSwitch
+                                    label="Trạng thái"
+                                    name="active"
+                                    checkedChildren="ACTIVE"
+                                    unCheckedChildren="INACTIVE"
+                                    initialValue={true}
                                     fieldProps={{
-                                        autoSize: { minRows: 4 }
+                                        defaultChecked: true,
                                     }}
                                 />
                             </Col>
+
+                            
+                            <Col span={8}>
+                                <ProForm.Item
+                                    name="company"
+                                    label="Thuộc Công Ty"
+                                    rules={[{ required: true, message: 'Vui lòng chọn company!' }]}
+                                >
+                                    <DebounceSelect
+                                        allowClear
+                                        showSearch
+                                        defaultValue={companies}
+                                        value={companies}
+                                        placeholder="Chọn công ty"
+                                        fetchOptions={fetchCompanyList}
+                                        onChange={(newValue: any) => {
+                                            if (newValue?.length === 0 || newValue?.length === 1) {
+                                                setCompanies(newValue as ICompanySelect[]);
+                                            }
+                                        }}
+                                        style={{ width: '100%' }}
+                                    />
+                                </ProForm.Item>
+
+                            </Col>
+                            
 
                             <ProCard
                                 title="Miêu tả"
@@ -302,4 +385,4 @@ const ModalCompany = (props: IProps) => {
     )
 }
 
-export default ModalCompany;
+export default ModalExam;

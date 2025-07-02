@@ -1,4 +1,4 @@
-import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers } from '@/types/backend';
+import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers, IExam } from '@/types/backend';
 import axios from 'config/axios-customize';
 
 /**
@@ -247,5 +247,29 @@ export const callFetchSubscriber = (query: string) => {
 
 export const callFetchSubscriberById = (id: string) => {
     return axios.get<IBackendRes<ISubscribers>>(`/api/v1/subscribers/${id}`);
+}
+
+/**
+ * 
+Module Exam
+ */
+export const callCreateExam = (exam: IExam) => {
+    return axios.post<IBackendRes<IExam>>('/api/v1/exams', { ...exam })
+}
+
+export const callUpdateExam = (exam: IExam, id: string) => {
+    return axios.put<IBackendRes<IExam>>(`/api/v1/exams`, { id, ...exam })
+}
+
+export const callDeleteExam = (id: string) => {
+    return axios.delete<IBackendRes<IExam>>(`/api/v1/exams/${id}`);
+}
+
+export const callFetchExam = (query: string) => {
+    return axios.get<IBackendRes<IModelPaginate<IExam>>>(`/api/v1/exams?${query}`);
+}
+
+export const callFetchExamById = (id: string) => {
+    return axios.get<IBackendRes<IExam>>(`/api/v1/exams/${id}`);
 }
 

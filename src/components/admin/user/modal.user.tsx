@@ -199,7 +199,7 @@ const ModalUser = (props: IProps) => {
                             label="Tuổi"
                             name="age"
                             rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
-                            placeholder="Nhập nhập tuổi"
+                            placeholder="Nhập tuổi"
                         />
                     </Col>
                     <Col lg={6} md={6} sm={24} xs={24}>

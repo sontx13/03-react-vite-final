@@ -10,6 +10,7 @@ import {
     AliwangwangOutlined,
     BugOutlined,
     ScheduleOutlined,
+    SolutionOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Dropdown, Space, message, Avatar, Button } from 'antd';
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
@@ -41,6 +42,11 @@ const LayoutAdmin = () => {
         if (permissions?.length || ACL_ENABLE === 'false') {
 
             const viewCompany = permissions?.find(item =>
+                item.apiPath === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.apiPath
+                && item.method === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.method
+            )
+
+            const viewExam = permissions?.find(item =>
                 item.apiPath === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.apiPath
                 && item.method === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.method
             )
@@ -81,7 +87,6 @@ const LayoutAdmin = () => {
                     key: '/admin/company',
                     icon: <BankOutlined />,
                 }] : []),
-
                 ...(viewUser || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/user'>User</Link>,
                     key: '/admin/user',
@@ -98,6 +103,11 @@ const LayoutAdmin = () => {
                     key: '/admin/resume',
                     icon: <AliwangwangOutlined />
                 }] : []),
+                ...(viewRole || ACL_ENABLE === 'false' ? [{
+                    label: <Link to='/admin/exam'>Bài thi</Link>,
+                    key: '/admin/exam',
+                    icon: <SolutionOutlined  />
+                }] : []),
                 ...(viewPermission || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/permission'>Permission</Link>,
                     key: '/admin/permission',
@@ -108,6 +118,7 @@ const LayoutAdmin = () => {
                     key: '/admin/role',
                     icon: <ExceptionOutlined />
                 }] : []),
+             
 
 
 
