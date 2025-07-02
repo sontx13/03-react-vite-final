@@ -1,11 +1,10 @@
-import ModalExam from "@/components/admin/exam/modal.exam";
 import DataTable from "@/components/client/data-table";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchExam } from "@/redux/slice/examSlide";
 import { IExam } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
+import { Button, Popconfirm, Space, message, notification } from "antd";
 import { useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import { callDeleteExam } from "@/config/api";
@@ -13,6 +12,7 @@ import queryString from 'query-string';
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import { sfLike } from "spring-filter-query-builder";
+import { useNavigate } from "react-router-dom";
 
 const ExamPage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -24,12 +24,12 @@ const ExamPage = () => {
     const meta = useAppSelector(state => state.exam.meta);
     const companies = useAppSelector(state => state.exam.result);
     const dispatch = useAppDispatch();
-
+    const navigate = useNavigate();
     const handleDeleteExam = async (id: string | undefined) => {
         if (id) {
             const res = await callDeleteExam(id);
             if (res && +res.statusCode === 200) {
-                message.success('Xóa bài thi thành công');
+                message.success('Xóa Exam thành công');
                 reloadTable();
             } else {
                 notification.error({
@@ -59,33 +59,16 @@ const ExamPage = () => {
             hideInSearch: true,
         },
         {
-            title: 'Tên',
+            title: 'Name',
             dataIndex: 'name',
             sorter: true,
         },
         {
-            title: 'Công ty',
-            dataIndex: ["company", "name"],
-            sorter: true,
-            hideInSearch: true,
-        },
-        {
-            title: 'Cấp độ',
-            dataIndex: 'level',
+            title: 'Description',
+            dataIndex: 'description',
             sorter: true,
         },
-        {
-            title: 'Trạng thái',
-            dataIndex: 'active',
-            render(dom, entity, index, action, schema) {
-                return <>
-                    <Tag color={entity.active ? "lime" : "red"} >
-                        {entity.active ? "ACTIVE" : "INACTIVE"}
-                    </Tag>
-                </>
-            },
-            hideInSearch: true,
-        },
+
         {
             title: 'CreatedAt',
             dataIndex: 'createdAt',
@@ -139,8 +122,8 @@ const ExamPage = () => {
                     >
                         <Popconfirm
                             placement="leftTop"
-                            title={"Xác nhận xóa bài thi"}
-                            description={"Bạn có chắc chắn muốn xóa bài thi này ?"}
+                            title={"Xác nhận xóa exam"}
+                            description={"Bạn có chắc chắn muốn xóa exam này ?"}
                             onConfirm={() => handleDeleteExam(entity.id)}
                             okText="Xác nhận"
                             cancelText="Hủy"
@@ -213,7 +196,7 @@ const ExamPage = () => {
             >
                 <DataTable<IExam>
                     actionRef={tableRef}
-                    headerTitle="Danh sách Bài thi"
+                    headerTitle="Danh sách Công Ty"
                     rowKey="id"
                     loading={isFetching}
                     columns={columns}
@@ -235,29 +218,17 @@ const ExamPage = () => {
                     rowSelection={false}
                     toolBarRender={(_action, _rows): any => {
                         return (
-                            <Access
-                                permission={ALL_PERMISSIONS.COMPANIES.CREATE}
-                                hideChildren
+                            <Button
+                                icon={<PlusOutlined />}
+                                type="primary"
+                                onClick={() => navigate('upsert')}
                             >
-                                <Button
-                                    icon={<PlusOutlined />}
-                                    type="primary"
-                                    onClick={() => setOpenModal(true)}
-                                >
-                                    Thêm mới
-                                </Button>
-                            </Access>
+                                Thêm mới
+                            </Button>
                         );
                     }}
                 />
             </Access>
-            <ModalExam
-                openModal={openModal}
-                setOpenModal={setOpenModal}
-                reloadTable={reloadTable}
-                dataInit={dataInit}
-                setDataInit={setDataInit}
-            />
         </div >
     )
 }

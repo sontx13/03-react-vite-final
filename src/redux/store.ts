@@ -6,6 +6,9 @@ import {
 import accountReducer from './slice/accountSlide';
 import companyReducer from './slice/companySlide';
 import examReducer from './slice/examSlide';
+import questionReducer from './slice/questionSlide';
+import answerReducer from './slice/answerSlide';
+import submissionReducer from './slice/submissionSlide';
 import userReducer from './slice/userSlide';
 import jobReducer from './slice/jobSlide';
 import resumeReducer from './slice/resumeSlide';
@@ -18,6 +21,9 @@ export const store = configureStore({
     account: accountReducer,
     company: companyReducer,
     exam: examReducer,
+    question: questionReducer,
+    answer: answerReducer,
+    submission: submissionReducer,
     user: userReducer,
     job: jobReducer,
     resume: resumeReducer,

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { callFetchExam } from '@/config/api';
-import { IExam } from '@/types/backend';
+import { callFetchSubmission } from '@/config/api';
+import { ISubmission } from '@/types/backend';
 
 interface IState {
     isFetching: boolean;
@@ -10,13 +10,13 @@ interface IState {
         pages: number;
         total: number;
     },
-    result: IExam[]
+    result: ISubmission[]
 }
 // First, create the thunk
-export const fetchExam = createAsyncThunk(
-    'exam/fetchExam',
+export const fetchSubmission = createAsyncThunk(
+    'submission/fetchSubmission',
     async ({ query }: { query: string }) => {
-        const response = await callFetchExam(query);
+        const response = await callFetchSubmission(query);
         return response;
     }
 )
@@ -34,8 +34,8 @@ const initialState: IState = {
 };
 
 
-export const examSlide = createSlice({
-    name: 'exam',
+export const submissionSlide = createSlice({
+    name: 'submission',
     initialState,
     // The `reducers` field lets us define reducers and generate associated actions
     reducers: {
@@ -48,19 +48,19 @@ export const examSlide = createSlice({
     },
     extraReducers: (builder) => {
         // Add reducers for additional action types here, and handle loading state as needed
-        builder.addCase(fetchExam.pending, (state, action) => {
+        builder.addCase(fetchSubmission.pending, (state, action) => {
             state.isFetching = true;
             // Add user to the state array
             // state.courseOrder = action.payload;
         })
 
-        builder.addCase(fetchExam.rejected, (state, action) => {
+        builder.addCase(fetchSubmission.rejected, (state, action) => {
             state.isFetching = false;
             // Add user to the state array
             // state.courseOrder = action.payload;
         })
 
-        builder.addCase(fetchExam.fulfilled, (state, action) => {
+        builder.addCase(fetchSubmission.fulfilled, (state, action) => {
             if (action.payload && action.payload.data) {
                 state.isFetching = false;
                 state.meta = action.payload.data.meta;
@@ -76,6 +76,6 @@ export const examSlide = createSlice({
 
 export const {
     setActiveMenu,
-} = examSlide.actions;
+} = submissionSlide.actions;
 
-export default examSlide.reducer;
+export default submissionSlide.reducer;

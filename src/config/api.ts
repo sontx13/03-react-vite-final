@@ -1,4 +1,4 @@
-import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers, IExam } from '@/types/backend';
+import { IBackendRes, ICompany, IAccount, IUser, IModelPaginate, IGetAccount, IJob, IResume, IPermission, IRole, ISkill, ISubscribers, IExam, IQuestion, IAnswer, ISubmission } from '@/types/backend';
 import axios from 'config/axios-customize';
 
 /**
@@ -273,3 +273,75 @@ export const callFetchExamById = (id: string) => {
     return axios.get<IBackendRes<IExam>>(`/api/v1/exams/${id}`);
 }
 
+/**
+ * 
+Module Question
+ */
+export const callCreateQuestion = (question: IQuestion) => {
+    return axios.post<IBackendRes<IQuestion>>('/api/v1/questions', { ...question })
+}
+
+export const callUpdateQuestion = (question: IQuestion, id: string) => {
+    return axios.put<IBackendRes<IQuestion>>(`/api/v1/questions`, { id, ...question })
+}
+
+export const callDeleteQuestion = (id: string) => {
+    return axios.delete<IBackendRes<IQuestion>>(`/api/v1/questions/${id}`);
+}
+
+export const callFetchQuestion = (query: string) => {
+    return axios.get<IBackendRes<IModelPaginate<IQuestion>>>(`/api/v1/questions?${query}`);
+}
+
+export const callFetchQuestionById = (id: string) => {
+    return axios.get<IBackendRes<IQuestion>>(`/api/v1/questions/${id}`);
+}
+
+/**
+ * 
+Module Answer
+ */
+export const callCreateAnswer = (answer: IAnswer) => {
+    return axios.post<IBackendRes<IAnswer>>('/api/v1/answers', { ...answer })
+}
+
+export const callUpdateAnswer = (answer: IAnswer, id: string) => {
+    return axios.put<IBackendRes<IAnswer>>(`/api/v1/answers`, { id, ...answer })
+}
+
+export const callDeleteAnswer = (id: string) => {
+    return axios.delete<IBackendRes<IAnswer>>(`/api/v1/answers/${id}`);
+}
+
+export const callFetchAnswer = (query: string) => {
+    return axios.get<IBackendRes<IModelPaginate<IAnswer>>>(`/api/v1/answers?${query}`);
+}
+
+export const callFetchAnswerById = (id: string) => {
+    return axios.get<IBackendRes<IAnswer>>(`/api/v1/answers/${id}`);
+}
+
+
+/**
+ * 
+Module Submission
+ */
+export const callCreateSubmission = (submission: ISubmission) => {
+    return axios.post<IBackendRes<ISubmission>>('/api/v1/submissions', { ...submission })
+}
+
+export const callUpdateSubmission = (submission: ISubmission, id: string) => {
+    return axios.put<IBackendRes<ISubmission>>(`/api/v1/submissions`, { id, ...submission })
+}
+
+export const callDeleteSubmission = (id: string) => {
+    return axios.delete<IBackendRes<ISubmission>>(`/api/v1/submissions/${id}`);
+}
+
+export const callFetchSubmission = (query: string) => {
+    return axios.get<IBackendRes<IModelPaginate<ISubmission>>>(`/api/v1/submissions?${query}`);
+}
+
+export const callFetchSubmissionById = (id: string) => {
+    return axios.get<IBackendRes<ISubmission>>(`/api/v1/submissions/${id}`);
+}

@@ -26,6 +26,7 @@ import UserPage from './pages/admin/user';
 import { fetchAccount } from './redux/slice/accountSlide';
 import LayoutApp from './components/share/layout.app';
 import ViewUpsertJob from './components/admin/job/upsert.job';
+import ViewUpsertExam from './components/admin/exam/upsert.exam';
 import ClientJobPage from './pages/job';
 import ClientJobDetailPage from './pages/job/detail';
 import ClientCompanyPage from './pages/company';
@@ -101,13 +102,7 @@ export default function App() {
               <CompanyPage />
             </ProtectedRoute>
         },
-        {
-          path: "exam",
-          element:
-            <ProtectedRoute>
-              <ExamPage />
-            </ProtectedRoute>
-        },
+        
         {
           path: "user",
           element:
@@ -116,6 +111,19 @@ export default function App() {
             </ProtectedRoute>
         },
 
+        {
+          path: "exam",
+          children: [
+            {
+              index: true,
+              element: <ProtectedRoute><ExamPage /></ProtectedRoute>
+            },
+            {
+              path: "upsert", element:
+                <ProtectedRoute><ViewUpsertExam /></ProtectedRoute>
+            }
+          ]
+        },
         {
           path: "job",
           children: [
@@ -129,7 +137,6 @@ export default function App() {
             }
           ]
         },
-
         {
           path: "resume",
           element:

@@ -50,6 +50,16 @@ export interface ICompany {
     updatedAt?: string;
 }
 
+export interface ISkill {
+    id?: string;
+    name?: string;
+    createdBy?: string;
+    isDeleted?: boolean;
+    deletedAt?: boolean | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 export interface IExam {
     id?: string;
     name?: string;
@@ -69,9 +79,17 @@ export interface IExam {
     updatedAt?: string;
 }
 
-export interface ISkill {
+export interface IQuestion {
     id?: string;
-    name?: string;
+    type: string;
+    active: number;
+    image: string;
+    description?: string;
+    exam?: {
+        id: string;
+        name: string;
+        logo?: string;
+    }
     createdBy?: string;
     isDeleted?: boolean;
     deletedAt?: boolean | null;
@@ -79,6 +97,58 @@ export interface ISkill {
     updatedAt?: string;
 }
 
+
+export interface IAnswer {
+    id?: string;
+    correct_answer: boolean;
+    description?: string;
+    question?: {
+        id: string;
+        description: string;
+        image?: string;
+    }
+    createdBy?: string;
+    isDeleted?: boolean;
+    deletedAt?: boolean | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface ISubmission {
+    id?: string;
+    score: number;
+    userId: string | {
+        id: string;
+        name: string;
+        email: string;
+    };
+    companyId: string | {
+        id: string;
+        name: string;
+        logo: string;
+    };
+    examId: string | {
+        id: string;
+        name: string;
+        logo: string;
+    };
+    questionId: string | {
+        id: string;
+        description: string;
+        image: string;
+    };
+    answerId: string | {
+        id: string;
+        description: string;
+        score: number;
+        correct_answer: boolean;
+    };
+    createdBy?: string;
+    isDeleted?: boolean;
+    deletedAt?: boolean | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
 
 
 export interface IUser {
