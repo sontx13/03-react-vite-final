@@ -3,20 +3,23 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchExam } from "@/redux/slice/examSlide";
 import { IExam } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Popconfirm, Space, message, notification } from "antd";
+import { ActionType, ProColumns, ProForm, ProFormSelect } from '@ant-design/pro-components';
+import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
 import { useState, useRef } from 'react';
 import dayjs from 'dayjs';
-import { callDeleteExam } from "@/config/api";
+import { callDeleteExam, callFetchCompany } from "@/config/api";
 import queryString from 'query-string';
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
-import { sfLike } from "spring-filter-query-builder";
+import { sfIn, sfLike } from "spring-filter-query-builder";
 import { useNavigate } from "react-router-dom";
+import { DebounceSelect } from "@/components/admin/user/debouce.select";
+import { ICompanySelect } from "@/components/admin/user/modal.user";
 
 const ExamPage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [dataInit, setDataInit] = useState<IExam | null>(null);
+    
 
     const tableRef = useRef<ActionType>();
 
@@ -40,6 +43,21 @@ const ExamPage = () => {
         }
     }
 
+     // Usage of DebounceSelect
+        async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
+            const res = await callFetchCompany(`page=1&size=100&name ~ '${name}'`);
+            if (res && res.data) {
+                const list = res.data.result;
+                const temp = list.map(item => {
+                    return {
+                        label: item.name as string,
+                        value: item.id as string
+                    }
+                })
+                return temp;
+            } else return [];
+        }
+
     const reloadTable = () => {
         tableRef?.current?.reload();
     }
@@ -59,16 +77,58 @@ const ExamPage = () => {
             hideInSearch: true,
         },
         {
-            title: 'Name',
+            title: 'Tên bài thi',
             dataIndex: 'name',
             sorter: true,
         },
         {
-            title: 'Description',
-            dataIndex: 'description',
+            title: 'Đơn vị',
+            dataIndex: ["company", "name"],
+            renderFormItem: (item, props, form) => (
+                 <ProForm.Item
+                    name="company"
+                >
+                    <DebounceSelect
+                        allowClear
+                        showSearch
+                        placeholder="Chọn công ty"
+                        fetchOptions={fetchCompanyList}
+                        style={{ width: '100%' }}
+                    />
+                </ProForm.Item>
+            ),
             sorter: true,
         },
-
+        {
+            title: 'Cấp độ',
+            dataIndex: 'level',
+            sorter: true,
+            hideInSearch: true,
+        },
+        {
+            title: 'Thời gian (phút)',
+            dataIndex: 'time_minutes',
+            sorter: true,
+            hideInSearch: true,
+        },
+        {
+            title: 'Tổng điểm',
+            dataIndex: 'total_question',
+            sorter: true,
+            hideInSearch: true,
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'active',
+            render(dom, entity, index, action, schema) {
+                return <>
+                    <Tag color={entity.active ? "lime" : "red"} >
+                        {entity.active ? "ACTIVE" : "INACTIVE"}
+                    </Tag>
+                </>
+            },
+            hideInSearch: true,
+        },
         {
             title: 'CreatedAt',
             dataIndex: 'createdAt',
@@ -105,14 +165,13 @@ const ExamPage = () => {
                         hideChildren
                     >
                         <EditOutlined
-                            style={{
+                             style={{
                                 fontSize: 20,
                                 color: '#ffa500',
                             }}
                             type=""
                             onClick={() => {
-                                setOpenModal(true);
-                                setDataInit(entity);
+                                navigate(`/admin/exam/upsert?id=${entity.id}`)
                             }}
                         />
                     </Access >
@@ -146,48 +205,48 @@ const ExamPage = () => {
 
     const buildQuery = (params: any, sort: any, filter: any) => {
         const clone = { ...params };
-        const q: any = {
-            page: params.current,
-            size: params.pageSize,
-            filter: ""
+        let filterParts: string[] = [];
+      
+        if (clone.name) filterParts.push(`name ~ '${clone.name}'`);
+
+        // Lọc theo company
+        if (clone?.company) {
+          const companyId = typeof clone.company === 'string'
+            ? clone.company
+            : clone.company.value;
+          filterParts.push(`company.id=${companyId}`);
         }
-
-
-
-        if (clone.name) q.filter = `${sfLike("name", clone.name)}`;
-        if (clone.address) {
-            q.filter = clone.name ?
-                q.filter + " and " + `${sfLike("address", clone.address)}`
-                : `${sfLike("address", clone.address)}`;
+      
+        const queryObj: any = {
+          page: clone.current,
+          size: clone.pageSize,
+        };
+      
+        if (filterParts.length > 0) {
+            queryObj.filter = filterParts.join(" and ");
         }
-
-        if (!q.filter) delete q.filter;
-
-        let temp = queryString.stringify(q);
-
+      
+        // Xử lý sort
         let sortBy = "";
-        if (sort && sort.name) {
-            sortBy = sort.name === 'ascend' ? "sort=name,asc" : "sort=name,desc";
+        const fields = ["name", "createdAt", "updatedAt"];
+        for (const field of fields) {
+          if (sort && sort[field]) {
+            sortBy = `${field},${sort[field] === 'ascend' ? 'asc' : 'desc'}`;
+            break;
+          }
         }
-        if (sort && sort.address) {
-            sortBy = sort.address === 'ascend' ? "sort=address,asc" : "sort=address,desc";
-        }
-        if (sort && sort.createdAt) {
-            sortBy = sort.createdAt === 'ascend' ? "sort=createdAt,asc" : "sort=createdAt,desc";
-        }
-        if (sort && sort.updatedAt) {
-            sortBy = sort.updatedAt === 'ascend' ? "sort=updatedAt,asc" : "sort=updatedAt,desc";
-        }
-
-        //mặc định sort theo updatedAt
-        if (Object.keys(sortBy).length === 0) {
-            temp = `${temp}&sort=updatedAt,desc`;
-        } else {
-            temp = `${temp}&${sortBy}`;
-        }
-
-        return temp;
-    }
+      
+        queryObj.sort = sortBy || "updatedAt,desc";
+      
+        // Xóa các field không cần
+        delete clone.current;
+        delete clone.pageSize;
+        delete clone.name;
+        delete clone.company;
+      
+        return queryString.stringify(queryObj);
+    };
+      
 
     return (
         <div>
@@ -196,7 +255,7 @@ const ExamPage = () => {
             >
                 <DataTable<IExam>
                     actionRef={tableRef}
-                    headerTitle="Danh sách Công Ty"
+                    headerTitle="Danh sách Bài thi"
                     rowKey="id"
                     loading={isFetching}
                     columns={columns}
