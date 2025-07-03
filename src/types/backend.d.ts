@@ -21,6 +21,8 @@ export interface IAccount {
         id: string;
         email: string;
         name: string;
+        phone: string;
+        _admin: boolean;
         role: {
             id: string;
             name: string;
@@ -31,6 +33,10 @@ export interface IAccount {
                 method: string;
                 module: string;
             }[]
+        };
+        company: {
+            id?: string;
+            name?: string;
         }
     }
 }

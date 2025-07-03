@@ -19,6 +19,8 @@ interface IState {
         id: string;
         email: string;
         name: string;
+        phone: string;
+        _admin: boolean;
         role: {
             id?: string;
             name?: string;
@@ -29,6 +31,10 @@ interface IState {
                 method: string;
                 module: string;
             }[]
+        };
+        company: {
+            id?: string;
+            name?: string;
         }
     };
     activeMenu: string;
@@ -43,10 +49,16 @@ const initialState: IState = {
         id: "",
         email: "",
         name: "",
+        phone: "",
+        _admin: false,
         role: {
             id: "",
             name: "",
             permissions: [],
+        },
+        company: {
+            id: "",
+            name: "",
         },
     },
 
@@ -81,10 +93,16 @@ export const accountSlide = createSlice({
                 id: "",
                 email: "",
                 name: "",
+                phone: "",
+                _admin: false,
                 role: {
                     id: "",
                     name: "",
                     permissions: [],
+                },
+                company: {
+                    id: "",
+                    name: "",
                 },
             }
         },
@@ -111,6 +129,9 @@ export const accountSlide = createSlice({
                 state.user.email = action.payload.user?.email;
                 state.user.name = action.payload.user?.name;
                 state.user.role = action?.payload?.user?.role;
+                state.user.company = action?.payload?.user?.company;
+                state.user.phone = action?.payload?.user?.phone;
+                state.user._admin = action?.payload?.user?._admin;
                 if (!action?.payload?.user?.role) state.user.role = {};
                 state.user.role.permissions = action?.payload?.user?.role?.permissions ?? [];
             }

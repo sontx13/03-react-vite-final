@@ -26,6 +26,14 @@ const ExamPage = () => {
     const isFetching = useAppSelector(state => state.exam.isFetching);
     const meta = useAppSelector(state => state.exam.meta);
     const companies = useAppSelector(state => state.exam.result);
+
+    const user = useAppSelector(state => state.account.user);
+    const is_admin = useAppSelector(state => state.account.user._admin);
+    const company = useAppSelector(state => state.account.user.company);
+
+    console.log("is_admin=="+is_admin);
+    console.log("company=="+ JSON.stringify(company));
+
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const handleDeleteExam = async (id: string | undefined) => {
