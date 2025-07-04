@@ -110,7 +110,6 @@ export default function App() {
               <UserPage />
             </ProtectedRoute>
         },
-
         {
           path: "exam",
           children: [
@@ -119,7 +118,8 @@ export default function App() {
               element: <ProtectedRoute><ExamPage /></ProtectedRoute>
             },
             {
-              path: "upsert", element:
+              path: "upsert",
+               element:
                 <ProtectedRoute><ViewUpsertExam /></ProtectedRoute>
             }
           ]

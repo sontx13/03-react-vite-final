@@ -45,7 +45,7 @@ const UserResume = (props: any) => {
             }
         },
         {
-            title: 'Công Ty',
+            title: 'Đơn vị',
             dataIndex: "companyName",
 
         },

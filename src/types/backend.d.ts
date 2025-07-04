@@ -71,7 +71,7 @@ export interface IExam {
     name?: string;
     level: number;
     logo: string;
-    description?: string;
+    description: string;
     company?: {
         id: string;
         name: string;

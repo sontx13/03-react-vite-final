@@ -47,8 +47,8 @@ const LayoutAdmin = () => {
             )
 
             const viewExam = permissions?.find(item =>
-                item.apiPath === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.apiPath
-                && item.method === ALL_PERMISSIONS.COMPANIES.GET_PAGINATE.method
+                item.apiPath === ALL_PERMISSIONS.EXAMS.GET_PAGINATE.apiPath
+                && item.method === ALL_PERMISSIONS.EXAMS.GET_PAGINATE.method
             )
 
             const viewUser = permissions?.find(item =>
@@ -103,7 +103,7 @@ const LayoutAdmin = () => {
                     key: '/admin/resume',
                     icon: <AliwangwangOutlined />
                 }] : []),
-                ...(viewRole || ACL_ENABLE === 'false' ? [{
+                ...(viewExam || ACL_ENABLE === 'false' ? [{
                     label: <Link to='/admin/exam'>Bài thi</Link>,
                     key: '/admin/exam',
                     icon: <SolutionOutlined  />

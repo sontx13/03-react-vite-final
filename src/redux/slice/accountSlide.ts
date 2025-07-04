@@ -35,6 +35,7 @@ interface IState {
         company: {
             id?: string;
             name?: string;
+            logo?: string;
         }
     };
     activeMenu: string;

@@ -261,7 +261,7 @@ const ModalCompany = (props: IProps) => {
                                     label="Địa chỉ"
                                     name="address"
                                     rules={[{ required: true, message: 'Vui lòng không bỏ trống' }]}
-                                    placeholder="Nhập địa chỉ công ty"
+                                    placeholder="Nhập địa chỉ Đơn vị"
                                     fieldProps={{
                                         autoSize: { minRows: 4 }
                                     }}
@@ -270,7 +270,7 @@ const ModalCompany = (props: IProps) => {
 
                             <ProCard
                                 title="Miêu tả"
-                                // subTitle="mô tả công ty"
+                                // subTitle="mô tả Đơn vị"
                                 headStyle={{ color: '#d81921' }}
                                 style={{ marginBottom: 20 }}
                                 headerBordered

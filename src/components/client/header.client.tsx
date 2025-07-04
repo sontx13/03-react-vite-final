@@ -41,7 +41,7 @@ const Header = (props: any) => {
             icon: <CodeOutlined />,
         },
         {
-            label: <Link to={'/company'}>Top Công ty IT</Link>,
+            label: <Link to={'/company'}>Top Đơn vị IT</Link>,
             key: '/company',
             icon: <RiseOutlined />,
         }

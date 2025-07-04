@@ -62,7 +62,7 @@ const JobPage = () => {
             sorter: true,
         },
         {
-            title: 'Công ty',
+            title: 'Đơn vị',
             dataIndex: ["company", "name"],
             sorter: true,
             hideInSearch: true,

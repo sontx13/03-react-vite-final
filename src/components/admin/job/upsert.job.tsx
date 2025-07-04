@@ -293,7 +293,7 @@ const ViewUpsertJob = (props: any) => {
                                 <Col span={24} md={6}>
                                     <ProForm.Item
                                         name="company"
-                                        label="Thuộc Công Ty"
+                                        label="Thuộc Đơn vị"
                                         rules={[{ required: true, message: 'Vui lòng chọn company!' }]}
                                     >
                                         <DebounceSelect
@@ -301,7 +301,7 @@ const ViewUpsertJob = (props: any) => {
                                             showSearch
                                             defaultValue={companies}
                                             value={companies}
-                                            placeholder="Chọn công ty"
+                                            placeholder="Chọn Đơn vị"
                                             fetchOptions={fetchCompanyList}
                                             onChange={(newValue: any) => {
                                                 if (newValue?.length === 0 || newValue?.length === 1) {

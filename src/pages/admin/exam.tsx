@@ -27,12 +27,11 @@ const ExamPage = () => {
     const meta = useAppSelector(state => state.exam.meta);
     const companies = useAppSelector(state => state.exam.result);
 
-    const user = useAppSelector(state => state.account.user);
     const is_admin = useAppSelector(state => state.account.user._admin);
     const company = useAppSelector(state => state.account.user.company);
 
-    console.log("is_admin=="+is_admin);
-    console.log("company=="+ JSON.stringify(company));
+    //console.log("is_admin=="+is_admin);
+    //console.log("company=="+ JSON.stringify(company));
 
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -92,19 +91,29 @@ const ExamPage = () => {
         {
             title: 'Đơn vị',
             dataIndex: ["company", "name"],
-            renderFormItem: (item, props, form) => (
-                 <ProForm.Item
-                    name="company"
-                >
-                    <DebounceSelect
-                        allowClear
-                        showSearch
-                        placeholder="Chọn công ty"
-                        fetchOptions={fetchCompanyList}
-                        style={{ width: '100%' }}
-                    />
-                </ProForm.Item>
-            ),
+            renderFormItem: (item, props, form) => {
+                if (!is_admin || company) {
+                    // Nếu không phải admin thì không cho chọn, mà gán cố định Đơn vị hiện tại
+                    form.setFieldValue('company', {
+                        label: company?.name,
+                        value: company?.id,
+                    });
+                    return null; // không hiển thị ô chọn
+                }
+            
+                // Admin thì được chọn tất cả Đơn vị
+                return (
+                    <ProForm.Item name="company">
+                        <DebounceSelect
+                            allowClear
+                            showSearch
+                            placeholder="Chọn Đơn vị"
+                            fetchOptions={fetchCompanyList}
+                            style={{ width: '100%' }}
+                        />
+                    </ProForm.Item>
+                );
+            },
             sorter: true,
         },
         {
@@ -120,8 +129,14 @@ const ExamPage = () => {
             hideInSearch: true,
         },
         {
-            title: 'Tổng điểm',
+            title: 'Số câu hỏi',
             dataIndex: 'total_question',
+            sorter: true,
+            hideInSearch: true,
+        },
+        {
+            title: 'Tổng điểm',
+            dataIndex: 'total_score',
             sorter: true,
             hideInSearch: true,
         },
@@ -169,7 +184,7 @@ const ExamPage = () => {
             render: (_value, entity, _index, _action) => (
                 <Space>
                     < Access
-                        permission={ALL_PERMISSIONS.COMPANIES.UPDATE}
+                        permission={ALL_PERMISSIONS.EXAMS.UPDATE}
                         hideChildren
                     >
                         <EditOutlined
@@ -184,7 +199,7 @@ const ExamPage = () => {
                         />
                     </Access >
                     <Access
-                        permission={ALL_PERMISSIONS.COMPANIES.DELETE}
+                        permission={ALL_PERMISSIONS.EXAMS.DELETE}
                         hideChildren
                     >
                         <Popconfirm
@@ -217,12 +232,14 @@ const ExamPage = () => {
       
         if (clone.name) filterParts.push(`name ~ '${clone.name}'`);
 
-        // Lọc theo company
-        if (clone?.company) {
-          const companyId = typeof clone.company === 'string'
-            ? clone.company
-            : clone.company.value;
-          filterParts.push(`company.id=${companyId}`);
+        // Lọc theo company check is_admin và company
+        if (is_admin && clone?.company) {
+            const companyId = typeof clone.company === 'string'
+                ? clone.company
+                : clone.company.value;
+            filterParts.push(`company.id=${companyId}`);
+        } else if (!is_admin && company) {
+            filterParts.push(`company.id=${company.id}`);
         }
       
         const queryObj: any = {
@@ -259,7 +276,7 @@ const ExamPage = () => {
     return (
         <div>
             <Access
-                permission={ALL_PERMISSIONS.COMPANIES.GET_PAGINATE}
+                permission={ALL_PERMISSIONS.EXAMS.GET_PAGINATE}
             >
                 <DataTable<IExam>
                     actionRef={tableRef}

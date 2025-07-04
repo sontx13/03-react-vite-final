@@ -242,7 +242,7 @@ const ModalUser = (props: IProps) => {
                     <Col lg={12} md={12} sm={24} xs={24}>
                         <ProForm.Item
                             name="company"
-                            label="Thuộc Công Ty"
+                            label="Thuộc Đơn vị"
                             rules={[{ required: true, message: 'Vui lòng chọn company!' }]}
                         >
                             <DebounceSelect
@@ -250,7 +250,7 @@ const ModalUser = (props: IProps) => {
                                 showSearch
                                 defaultValue={companies}
                                 value={companies}
-                                placeholder="Chọn công ty"
+                                placeholder="Chọn Đơn vị"
                                 fetchOptions={fetchCompanyList}
                                 onChange={(newValue: any) => {
                                     if (newValue?.length === 0 || newValue?.length === 1) {
