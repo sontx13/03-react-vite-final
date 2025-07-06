@@ -68,8 +68,11 @@ export interface ISkill {
 
 export interface IExam {
     id?: string;
-    name?: string;
+    name: string;
     level: number;
+    time_minutes: number;
+    total_score: number;
+    total_question: number;
     logo: string;
     description: string;
     company?: {

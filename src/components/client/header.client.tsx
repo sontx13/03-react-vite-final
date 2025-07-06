@@ -35,16 +35,16 @@ const Header = (props: any) => {
             key: '/',
             icon: <TwitterOutlined />,
         },
-        {
-            label: <Link to={'/job'}>Việc Làm IT</Link>,
-            key: '/job',
-            icon: <CodeOutlined />,
-        },
-        {
-            label: <Link to={'/company'}>Top Đơn vị IT</Link>,
-            key: '/company',
-            icon: <RiseOutlined />,
-        }
+        // {
+        //     label: <Link to={'/job'}>Việc Làm IT</Link>,
+        //     key: '/job',
+        //     icon: <CodeOutlined />,
+        // },
+        // {
+        //     label: <Link to={'/company'}>Top Đơn vị IT</Link>,
+        //     key: '/company',
+        //     icon: <RiseOutlined />,
+        // }
     ];
 
 

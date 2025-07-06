@@ -1,6 +1,6 @@
-import { callFetchJob } from '@/config/api';
+import { callFetchExam } from '@/config/api';
 import { convertSlug, getLocationName } from '@/config/utils';
-import { IJob } from '@/types/backend';
+import { IExam } from '@/types/backend';
 import { EnvironmentOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { Card, Col, Empty, Pagination, Row, Spin } from 'antd';
 import { useState, useEffect } from 'react';
@@ -18,10 +18,10 @@ interface IProps {
     showPagination?: boolean;
 }
 
-const JobCard = (props: IProps) => {
+const ExamCard = (props: IProps) => {
     const { showPagination = false } = props;
 
-    const [displayJob, setDisplayJob] = useState<IJob[] | null>(null);
+    const [displayExam, setDisplayExam] = useState<IExam[] | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [current, setCurrent] = useState(1);
@@ -34,10 +34,10 @@ const JobCard = (props: IProps) => {
     const location = useLocation();
 
     useEffect(() => {
-        fetchJob();
+        fetchExam();
     }, [current, pageSize, filter, sortQuery, location]);
 
-    const fetchJob = async () => {
+    const fetchExam = async () => {
         setIsLoading(true)
         let query = `page=${current}&size=${pageSize}`;
         if (filter) {
@@ -48,26 +48,26 @@ const JobCard = (props: IProps) => {
         }
 
         //check query string
-        const queryLocation = searchParams.get("location");
-        const querySkills = searchParams.get("skills")
-        if (queryLocation || querySkills) {
-            let q = "";
-            if (queryLocation) {
-                q = sfIn("location", queryLocation.split(",")).toString();
-            }
+        // const queryLocation = searchParams.get("location");
+        // const querySkills = searchParams.get("skills")
+        // if (queryLocation || querySkills) {
+        //     let q = "";
+        //     if (queryLocation) {
+        //         q = sfIn("location", queryLocation.split(",")).toString();
+        //     }
 
-            if (querySkills) {
-                q = queryLocation ?
-                    q + " and " + `${sfIn("skills", querySkills.split(","))}`
-                    : `${sfIn("skills", querySkills.split(","))}`;
-            }
+        //     if (querySkills) {
+        //         q = queryLocation ?
+        //             q + " and " + `${sfIn("skills", querySkills.split(","))}`
+        //             : `${sfIn("skills", querySkills.split(","))}`;
+        //     }
 
-            query += `&filter=${encodeURIComponent(q)}`;
-        }
+        //     query += `&filter=${encodeURIComponent(q)}`;
+        // }
 
-        const res = await callFetchJob(query);
+        const res = await callFetchExam(query);
         if (res && res.data) {
-            setDisplayJob(res.data.result);
+            setDisplayExam(res.data.result);
             setTotal(res.data.meta.total)
         }
         setIsLoading(false);
@@ -85,43 +85,44 @@ const JobCard = (props: IProps) => {
         }
     }
 
-    const handleViewDetailJob = (item: IJob) => {
+    const handleViewDetailExam = (item: IExam) => {
         const slug = convertSlug(item.name);
-        navigate(`/job/${slug}?id=${item.id}`)
+        navigate(`/exam/${slug}?id=${item.id}`)
     }
 
     return (
-        <div className={`${styles["card-job-section"]}`}>
-            <div className={`${styles["job-content"]}`}>
+        <div className={`${styles["card-exam-section"]}`}>
+            <div className={`${styles["exam-content"]}`}>
                 <Spin spinning={isLoading} tip="Loading...">
                     <Row gutter={[20, 20]}>
                         <Col span={24}>
                             <div className={isMobile ? styles["dflex-mobile"] : styles["dflex-pc"]}>
                                 <span className={styles["title"]}>Cuộc thi mới nhất</span>
                                 {!showPagination &&
-                                    <Link to="job">Xem tất cả</Link>
+                                    <Link to="exam">Xem tất cả</Link>
                                 }
                             </div>
                         </Col>
 
-                        {displayJob?.map(item => {
+                        {displayExam?.map(item => {
                             return (
-                                <Col span={24} md={12} key={item.id}>
+                                <Col span={24} sm={12} md={8} lg={6} key={item.id}>
                                     <Card size="small" title={null} hoverable
-                                        onClick={() => handleViewDetailJob(item)}
+                                        onClick={() => handleViewDetailExam(item)}
                                     >
-                                        <div className={styles["card-job-content"]}>
-                                            <div className={styles["card-job-left"]}>
+                                        <div className={styles["card-exam-content"]}>
+                                            <div className={styles["card-exam-left"]}>
                                                 <img
                                                     alt="example"
-                                                    src={`${import.meta.env.VITE_BACKEND_URL}/storage/company/${item?.company?.logo}`}
+                                                    src={`${import.meta.env.VITE_BACKEND_URL}/storage/exam/${item?.logo}`}
+                                                    style={{ width: "100%", height: "150px", objectFit: "cover" }}
                                                 />
                                             </div>
-                                            <div className={styles["card-job-right"]}>
-                                                <div className={styles["job-title"]}>{item.name}</div>
-                                                <div className={styles["job-location"]}><EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{getLocationName(item.location)}</div>
-                                                <div><ThunderboltOutlined style={{ color: 'orange' }} />&nbsp;{(item.salary + "")?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} đ</div>
-                                                <div className={styles["job-updatedAt"]}>{item.updatedAt ? dayjs(item.updatedAt).locale('en').fromNow() : dayjs(item.createdAt).locale('en').fromNow()}</div>
+                                            <div className={styles["card-exam-right"]}>
+                                                <div className={styles["exam-title"]}>{item.name}</div>
+                                                <div className={styles["exam-location"]}><EnvironmentOutlined style={{ color: '#58aaab' }} />&nbsp;{"Cấp độ: "+item.level}</div>
+                                                <div><ThunderboltOutlined style={{ color: 'orange' }} />&nbsp;{("Thời gian: "+item.time_minutes + " phút")?.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} </div>
+                                                {/* <div className={styles["exam-updatedAt"]}>{item.updatedAt ? dayjs(item.updatedAt).locale('en').fromNow() : dayjs(item.createdAt).locale('en').fromNow()}</div> */}
                                             </div>
                                         </div>
 
@@ -131,7 +132,7 @@ const JobCard = (props: IProps) => {
                         })}
 
 
-                        {(!displayJob || displayJob && displayJob.length === 0)
+                        {(!displayExam || displayExam && displayExam.length === 0)
                             && !isLoading &&
                             <div className={styles["empty"]}>
                                 <Empty description="Không có dữ liệu" />
@@ -156,4 +157,4 @@ const JobCard = (props: IProps) => {
     )
 }
 
-export default JobCard;
+export default ExamCard;
