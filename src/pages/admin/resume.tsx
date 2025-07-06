@@ -87,7 +87,7 @@ const ResumePage = () => {
             hideInSearch: true,
         },
         {
-            title: 'Company',
+            title: 'Đơn vị',
             dataIndex: "companyName",
             hideInSearch: true,
         },

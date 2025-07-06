@@ -161,6 +161,9 @@ export interface IUser {
     id?: string;
     name: string;
     email: string;
+    phone: string;
+    _admin: boolean;
+    active: boolean;
     password?: string;
     age: number;
     gender: string;

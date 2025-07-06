@@ -51,19 +51,19 @@ const ExamPage = () => {
     }
 
      // Usage of DebounceSelect
-        async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
-            const res = await callFetchCompany(`page=1&size=100&name ~ '${name}'`);
-            if (res && res.data) {
-                const list = res.data.result;
-                const temp = list.map(item => {
-                    return {
-                        label: item.name as string,
-                        value: item.id as string
-                    }
-                })
-                return temp;
-            } else return [];
-        }
+    async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
+        const res = await callFetchCompany(`page=1&size=100&name ~ '${name}'`);
+        if (res && res.data) {
+            const list = res.data.result;
+            const temp = list.map(item => {
+                return {
+                    label: item.name as string,
+                    value: item.id as string
+                }
+            })
+            return temp;
+        } else return [];
+    }
 
     const reloadTable = () => {
         tableRef?.current?.reload();

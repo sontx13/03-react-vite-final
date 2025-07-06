@@ -3,17 +3,18 @@ import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { fetchUser } from "@/redux/slice/userSlide";
 import { IUser } from "@/types/backend";
 import { DeleteOutlined, EditOutlined, PlusOutlined, EyeOutlined } from "@ant-design/icons";
-import { ActionType, ProColumns } from '@ant-design/pro-components';
-import { Button, Popconfirm, Space, message, notification } from "antd";
+import { ActionType, ProColumns, ProForm } from '@ant-design/pro-components';
+import { Button, Popconfirm, Space, Tag, message, notification } from "antd";
 import { useState, useRef } from 'react';
 import dayjs from 'dayjs';
-import { callDeleteUser } from "@/config/api";
+import { callDeleteUser, callFetchCompany } from "@/config/api";
 import queryString from 'query-string';
-import ModalUser from "@/components/admin/user/modal.user";
+import ModalUser, { ICompanySelect } from "@/components/admin/user/modal.user";
 import ViewDetailUser from "@/components/admin/user/view.user";
 import Access from "@/components/share/access";
 import { ALL_PERMISSIONS } from "@/config/permissions";
 import { sfLike } from "spring-filter-query-builder";
+import { DebounceSelect } from "@/components/admin/user/debouce.select";
 
 const UserPage = () => {
     const [openModal, setOpenModal] = useState<boolean>(false);
@@ -26,6 +27,9 @@ const UserPage = () => {
     const meta = useAppSelector(state => state.user.meta);
     const users = useAppSelector(state => state.user.result);
     const dispatch = useAppDispatch();
+
+    const is_admin = useAppSelector(state => state.account.user._admin);
+    const company = useAppSelector(state => state.account.user.company);
 
     const handleDeleteUser = async (id: string | undefined) => {
         if (id) {
@@ -41,6 +45,22 @@ const UserPage = () => {
             }
         }
     }
+
+    // Usage of DebounceSelect
+    async function fetchCompanyList(name: string): Promise<ICompanySelect[]> {
+        const res = await callFetchCompany(`page=1&size=100&name ~ '${name}'`);
+        if (res && res.data) {
+            const list = res.data.result;
+            const temp = list.map(item => {
+                return {
+                    label: item.name as string,
+                    value: item.id as string
+                }
+            })
+            return temp;
+        } else return [];
+    }
+    
 
     const reloadTable = () => {
         tableRef?.current?.reload();
@@ -70,6 +90,12 @@ const UserPage = () => {
             dataIndex: 'email',
             sorter: true,
         },
+        {
+            title: 'Số ĐT',
+            dataIndex: 'phone',
+            sorter: true,
+            hideInSearch: true
+        },
 
         {
             title: 'Role',
@@ -79,12 +105,45 @@ const UserPage = () => {
         },
 
         {
-            title: 'Company',
+            title: 'Đơn vị',
             dataIndex: ["company", "name"],
+            renderFormItem: (item, props, form) => {
+                if (!is_admin || company) {
+                    // Nếu không phải admin thì không cho chọn, mà gán cố định Đơn vị hiện tại
+                    form.setFieldValue('company', {
+                        label: company?.name,
+                        value: company?.id,
+                    });
+                    return null; // không hiển thị ô chọn
+                }
+            
+                // Admin thì được chọn tất cả Đơn vị
+                return (
+                    <ProForm.Item name="company">
+                        <DebounceSelect
+                            allowClear
+                            showSearch
+                            placeholder="Chọn Đơn vị"
+                            fetchOptions={fetchCompanyList}
+                            style={{ width: '100%' }}
+                        />
+                    </ProForm.Item>
+                );
+            },
             sorter: true,
-            hideInSearch: true
         },
-
+        {
+            title: 'Admin',
+            dataIndex: '_admin',
+            render(dom, entity, index, action, schema) {
+                return <>
+                    <Tag color={entity._admin ? "lime" : "blue"} >
+                        {entity._admin ? "Admin" : "NoAdmin"}
+                    </Tag>
+                </>
+            },
+            hideInSearch: true,
+        },
         {
             title: 'CreatedAt',
             dataIndex: 'createdAt',
