@@ -1,132 +1,115 @@
-import { Button, Col, Form, Row, Select, notification } from 'antd';
+import { Button, Col, Form, Input, Row, Select, notification } from 'antd';
 import { EnvironmentOutlined, MonitorOutlined } from '@ant-design/icons';
-import { LOCATION_LIST } from '@/config/utils';
 import { ProForm } from '@ant-design/pro-components';
 import { useEffect, useState } from 'react';
-import { callFetchAllSkill } from '@/config/api';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { callFetchCompany } from '@/config/api'; // Đảm bảo bạn có hàm này
 
 const SearchClient = () => {
     const navigate = useNavigate();
     const location = useLocation();
-
-    const optionsLocations = LOCATION_LIST;
     const [form] = Form.useForm();
-    const [optionsSkills, setOptionsSkills] = useState<{
-        label: string;
-        value: string;
-    }[]>([]);
+    const [optionsCompany, setOptionsCompany] = useState<{ label: string, value: string }[]>([]);
+    const [searchParams] = useSearchParams();
 
-    const [searchParams, setSearchParams] = useSearchParams();
-
+    // Gọi danh sách đơn vị ngay khi component mount
     useEffect(() => {
-        if (location.search) {
-            const queryLocation = searchParams.get("location");
-            const querySkills = searchParams.get("skills")
-            if (queryLocation) {
-                form.setFieldValue("location", queryLocation.split(","))
-            }
-            if (querySkills) {
-                form.setFieldValue("skills", querySkills.split(","))
-            }
-        }
-    }, [location.search])
-
-    useEffect(() => {
-        fetchSkill();
-    }, [])
-
-    const fetchSkill = async () => {
-        let query = `page=1&size=100&sort=createdAt,desc`;
-
-        const res = await callFetchAllSkill(query);
-        if (res && res.data) {
-            const arr = res?.data?.result?.map(item => {
-                return {
-                    label: item.name as string,
-                    value: item.id + "" as string
+        const fetchCompanies = async () => {
+            try {
+                const res = await callFetchCompany(`page=1&size=100`);
+                if (res?.data?.result) {
+                    const arr = res.data.result.map((item: any) => ({
+                        label: item.name,
+                        value: item.id.toString()
+                    }));
+                    setOptionsCompany(arr);
                 }
-            }) ?? [];
-            setOptionsSkills(arr);
-        }
-    }
+            } catch (err) {
+                console.error("Lỗi load đơn vị:", err);
+                setOptionsCompany([]);
+            }
+        };
+        fetchCompanies();
+    }, []);
+
+    // Khi URL thay đổi (VD: reload trang), set lại form từ query string
+    useEffect(() => {
+        const queryName = searchParams.get("name") || '';
+        const queryCompany = searchParams.get("company") || '';
+        form.setFieldsValue({
+            name: queryName,
+            company: queryCompany
+        });
+    }, [location.search]);
 
     const onFinish = async (values: any) => {
-        let query = "";
-        if (values?.location?.length) {
-            query = `location=${values?.location?.join(",")}`;
-        }
-        if (values?.skills?.length) {
-            query = values.location?.length ? query + `&skills=${values?.skills?.join(",")}`
-                :
-                `skills=${values?.skills?.join(",")}`;
-        }
+        const { name, company } = values;
 
-        if (!query) {
+        if (!name && !company) {
             notification.error({
-                message: 'Có lỗi xảy ra',
-                description: "Vui lòng chọn tiêu chí để search"
+                message: 'Thiếu thông tin tìm kiếm',
+                description: "Vui lòng nhập tên hoặc chọn đơn vị tổ chức để tìm kiếm."
             });
             return;
         }
-        navigate(`/job?${query}`);
-    }
+
+        const filters: string[] = [];
+        if (name) filters.push(`name ~ '${name}'`);
+        if (company) filters.push(`company.id=${company}`);
+        const query = `filter=${encodeURIComponent(filters.join(' and '))}`;
+
+        // Có thể đính kèm name & company vào query nếu cần giữ lại khi reload
+        const queryParams = new URLSearchParams();
+        if (name) queryParams.append("name", name);
+        if (company) queryParams.append("company", company);
+        queryParams.append("filter", filters.join(' and '));
+
+        navigate(`/exam?${queryParams.toString()}`);
+    };
 
     return (
         <ProForm
             form={form}
             onFinish={onFinish}
-            submitter={
-                {
-                    render: () => <></>
-                }
-            }
+            submitter={{ render: () => <></> }}
         >
             <Row gutter={[20, 20]}>
-                <Col span={24}><h2>Danh sách các cuộc thi</h2></Col>
-                <Col span={24} md={16}>
-                    <ProForm.Item
-                        name="skills"
-                    >
-                        <Select
-                            mode="multiple"
+                <Col span={24}>
+                    <h2>Danh sách các cuộc thi</h2>
+                </Col>
+
+                <Col span={24} md={10}>
+                    <ProForm.Item name="name">
+                        <Input
+                            placeholder="Nhập tên kỳ thi"
+                            prefix={<MonitorOutlined />}
                             allowClear
-                            suffixIcon={null}
-                            style={{ width: '100%' }}
-                            placeholder={
-                                <>
-                                    <MonitorOutlined /> Tìm theo kỹ năng...
-                                </>
-                            }
-                            optionLabelProp="label"
-                            options={optionsSkills}
                         />
                     </ProForm.Item>
                 </Col>
-                <Col span={12} md={4}>
-                    <ProForm.Item
-                        name="location"
-                    >
+
+                <Col span={24} md={10}>
+                    <ProForm.Item name="company">
                         <Select
-                            mode="multiple"
+                            showSearch
                             allowClear
-                            suffixIcon={null}
-                            style={{ width: '100%' }}
-                            placeholder={
-                                <>
-                                    <EnvironmentOutlined /> Địa điểm...
-                                </>
+                            placeholder={<><EnvironmentOutlined /> Đơn vị tổ chức</>}
+                            options={optionsCompany}
+                            filterOption={(input, option) =>
+                                (option?.label as string).toLowerCase().includes(input.toLowerCase())
                             }
-                            optionLabelProp="label"
-                            options={optionsLocations}
                         />
                     </ProForm.Item>
                 </Col>
+
                 <Col span={12} md={4}>
-                    <Button type='primary' onClick={() => form.submit()}>Search</Button>
+                    <Button type="primary" onClick={() => form.submit()} block>
+                        Tìm kiếm
+                    </Button>
                 </Col>
             </Row>
         </ProForm>
-    )
-}
+    );
+};
+
 export default SearchClient;

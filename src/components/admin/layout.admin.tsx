@@ -104,7 +104,7 @@ const LayoutAdmin = () => {
                     icon: <AliwangwangOutlined />
                 }] : []),
                 ...(viewExam || ACL_ENABLE === 'false' ? [{
-                    label: <Link to='/admin/exam'>Bài thi</Link>,
+                    label: <Link to='/admin/exam'>Cuộc thi</Link>,
                     key: '/admin/exam',
                     icon: <SolutionOutlined  />
                 }] : []),

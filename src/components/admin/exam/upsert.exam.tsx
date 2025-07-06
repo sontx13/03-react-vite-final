@@ -254,10 +254,10 @@ const ViewUpsertExam = (props: any) => {
                     separator=">"
                     items={[
                         {
-                            title: <Link to="/admin/exam">Quản lý Bài thi</Link>,
+                            title: <Link to="/admin/exam">Quản lý Cuộc thi</Link>,
                         },
                         {
-                            title: 'Cập nhật bài thi',
+                            title: 'Cập nhật cuộc thi',
                         },
                     ]}
                 />
@@ -285,12 +285,12 @@ const ViewUpsertExam = (props: any) => {
                         <Row gutter={[20, 20]}>
                             <Col span={24} md={6}>
                                 <ProFormText
-                                    label="Tên bài thi"
+                                    label="Tên cuộc thi"
                                     name="name"
                                     rules={[
                                         { required: true, message: 'Vui lòng không bỏ trống' },
                                     ]}
-                                    placeholder="Nhập tên bài thi"
+                                    placeholder="Nhập tên cuộc thi"
                                 />
                             </Col>
 
@@ -436,8 +436,8 @@ const ViewUpsertExam = (props: any) => {
                             <Col span={24}>
                                 <ProForm.Item
                                     name="description"
-                                    label="Mô tả bài thi"
-                                    rules={[{ required: true, message: 'Vui lòng nhập miêu tả bài thi!' }]}
+                                    label="Mô tả cuộc thi"
+                                    rules={[{ required: true, message: 'Vui lòng nhập miêu tả cuộc thi!' }]}
                                 >
                                     <ReactQuill
                                         theme="snow"

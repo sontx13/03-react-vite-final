@@ -84,7 +84,7 @@ const ExamPage = () => {
             hideInSearch: true,
         },
         {
-            title: 'Tên bài thi',
+            title: 'Tên cuộc thi',
             dataIndex: 'name',
             sorter: true,
         },
@@ -280,7 +280,7 @@ const ExamPage = () => {
             >
                 <DataTable<IExam>
                     actionRef={tableRef}
-                    headerTitle="Danh sách Bài thi"
+                    headerTitle="Danh sách Cuộc thi"
                     rowKey="id"
                     loading={isFetching}
                     columns={columns}
