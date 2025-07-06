@@ -41,10 +41,9 @@ const LayoutClient = () => {
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (rootRef && rootRef.current) {
+    if (rootRef?.current) {
       rootRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-
   }, [location]);
 
   return (
@@ -55,22 +54,19 @@ const LayoutClient = () => {
       </div>
       <Footer />
     </div>
-  )
-}
+  );
+};
 
 export default function App() {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(state => state.account.isLoading);
 
-
   useEffect(() => {
-    if (
-      window.location.pathname === '/login'
-      || window.location.pathname === '/register'
-    )
-      return;
-    dispatch(fetchAccount())
-  }, [])
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      dispatch(fetchAccount());
+    }
+  }, []);
 
   const router = createBrowserRouter([
     {
@@ -82,104 +78,48 @@ export default function App() {
         { path: "job", element: <ClientJobPage /> },
         { path: "exam", element: <ClientExamPage /> },
         { path: "job/:id", element: <ClientJobDetailPage /> },
-        { path: "exam/:id", element: <ClientExamDetailPage /> },
+        {
+          path: "exam/:id",
+          element: (
+            <ProtectedRoute>
+              <ClientExamDetailPage />
+            </ProtectedRoute>
+          )
+        },
         { path: "company", element: <ClientCompanyPage /> },
         { path: "company/:id", element: <ClientCompanyDetailPage /> }
       ],
     },
-
     {
       path: "/admin",
-      element: (<LayoutApp><LayoutAdmin /> </LayoutApp>),
+      element: (<LayoutApp><LayoutAdmin /></LayoutApp>),
       errorElement: <NotFound />,
       children: [
-        {
-          index: true, element:
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-        },
-        {
-          path: "company",
-          element:
-            <ProtectedRoute>
-              <CompanyPage />
-            </ProtectedRoute>
-        },
-        
-        {
-          path: "user",
-          element:
-            <ProtectedRoute>
-              <UserPage />
-            </ProtectedRoute>
-        },
+        { index: true, element: <ProtectedRoute><DashboardPage /></ProtectedRoute> },
+        { path: "company", element: <ProtectedRoute><CompanyPage /></ProtectedRoute> },
+        { path: "user", element: <ProtectedRoute><UserPage /></ProtectedRoute> },
         {
           path: "exam",
           children: [
-            {
-              index: true,
-              element: <ProtectedRoute><ExamPage /></ProtectedRoute>
-            },
-            {
-              path: "upsert",
-               element:
-                <ProtectedRoute><ViewUpsertExam /></ProtectedRoute>
-            }
+            { index: true, element: <ProtectedRoute><ExamPage /></ProtectedRoute> },
+            { path: "upsert", element: <ProtectedRoute><ViewUpsertExam /></ProtectedRoute> },
           ]
         },
         {
           path: "job",
           children: [
-            {
-              index: true,
-              element: <ProtectedRoute><JobTabs /></ProtectedRoute>
-            },
-            {
-              path: "upsert", element:
-                <ProtectedRoute><ViewUpsertJob /></ProtectedRoute>
-            }
+            { index: true, element: <ProtectedRoute><JobTabs /></ProtectedRoute> },
+            { path: "upsert", element: <ProtectedRoute><ViewUpsertJob /></ProtectedRoute> },
           ]
         },
-        {
-          path: "resume",
-          element:
-            <ProtectedRoute>
-              <ResumePage />
-            </ProtectedRoute>
-        },
-        {
-          path: "permission",
-          element:
-            <ProtectedRoute>
-              <PermissionPage />
-            </ProtectedRoute>
-        },
-        {
-          path: "role",
-          element:
-            <ProtectedRoute>
-              <RolePage />
-            </ProtectedRoute>
-        }
+        { path: "resume", element: <ProtectedRoute><ResumePage /></ProtectedRoute> },
+        { path: "permission", element: <ProtectedRoute><PermissionPage /></ProtectedRoute> },
+        { path: "role", element: <ProtectedRoute><RolePage /></ProtectedRoute> },
       ],
     },
-
-
-    {
-      path: "/login",
-      element: <LoginPage />,
-    },
-
-    {
-      path: "/register",
-      element: <RegisterPage />,
-    },
+    { path: "/login", element: <LoginPage /> },
+    { path: "/register", element: <RegisterPage /> },
   ]);
 
-  return (
-    <>
-      <RouterProvider router={router} />
-    </>
-  )
+  return <RouterProvider router={router} />;
 }

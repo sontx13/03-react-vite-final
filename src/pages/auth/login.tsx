@@ -13,17 +13,15 @@ const LoginPage = () => {
     const dispatch = useDispatch();
     const isAuthenticated = useAppSelector(state => state.account.isAuthenticated);
 
-    let location = useLocation();
-    let params = new URLSearchParams(location.search);
-    const callback = params?.get("callback");
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const redirect = params?.get("redirect");
 
     useEffect(() => {
-        //đã login => redirect to '/'
         if (isAuthenticated) {
-            // navigate('/');
-            window.location.href = '/';
+            navigate('/');
         }
-    }, [])
+    }, []);
 
     const onFinish = async (values: any) => {
         const { username, password } = values;
@@ -33,19 +31,20 @@ const LoginPage = () => {
 
         if (res?.data) {
             localStorage.setItem('access_token', res.data.access_token);
-            dispatch(setUserLoginInfo(res.data.user))
+            dispatch(setUserLoginInfo(res.data.user));
             message.success('Đăng nhập tài khoản thành công!');
-            window.location.href = callback ? callback : '/';
+
+            // Điều hướng về trang được yêu cầu ban đầu (nếu có)
+            navigate(redirect ? redirect : '/', { replace: true });
         } else {
             notification.error({
                 message: "Có lỗi xảy ra",
                 description:
                     res.message && Array.isArray(res.message) ? res.message[0] : res.message,
                 duration: 5
-            })
+            });
         }
     };
-
 
     return (
         <div className={styles["login-page"]}>
@@ -55,16 +54,10 @@ const LoginPage = () => {
                         <div className={styles.heading}>
                             <h2 className={`${styles.text} ${styles["text-large"]}`}>Đăng Nhập</h2>
                             <Divider />
-
                         </div>
-                        <Form
-                            name="basic"
-                            // style={{ maxWidth: 600, margin: '0 auto' }}
-                            onFinish={onFinish}
-                            autoComplete="off"
-                        >
+                        <Form name="basic" onFinish={onFinish} autoComplete="off">
                             <Form.Item
-                                labelCol={{ span: 24 }} //whole column
+                                labelCol={{ span: 24 }}
                                 label="Email"
                                 name="username"
                                 rules={[{ required: true, message: 'Email không được để trống!' }]}
@@ -73,7 +66,7 @@ const LoginPage = () => {
                             </Form.Item>
 
                             <Form.Item
-                                labelCol={{ span: 24 }} //whole column
+                                labelCol={{ span: 24 }}
                                 label="Mật khẩu"
                                 name="password"
                                 rules={[{ required: true, message: 'Mật khẩu không được để trống!' }]}
@@ -81,17 +74,15 @@ const LoginPage = () => {
                                 <Input.Password />
                             </Form.Item>
 
-                            <Form.Item
-                            // wrapperCol={{ offset: 6, span: 16 }}
-                            >
+                            <Form.Item>
                                 <Button type="primary" htmlType="submit" loading={isSubmit}>
                                     Đăng nhập
                                 </Button>
                             </Form.Item>
-                            <Divider>Or</Divider>
-                            <p className="text text-normal">Chưa có tài khoản ?
+                            <Divider>Hoặc</Divider>
+                            <p className="text text-normal">Chưa có tài khoản?
                                 <span>
-                                    <Link to='/register' > Đăng Ký </Link>
+                                    <Link to='/register'> Đăng Ký </Link>
                                 </span>
                             </p>
                         </Form>
